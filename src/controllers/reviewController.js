@@ -2,8 +2,13 @@ const Review = require('../models/Review');
 
 async function getAllReviews(req, res) {
   try {
-    const reviews = await Review.find().sort({ fechaCreacion: -1 });
-    res.json({ success: true, count: reviews.length, data: reviews });
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
+    const total = await Review.countDocuments();
+    const reviews = await Review.find().sort({ fechaCreacion: -1 }).skip(skip).limit(limit);
+    const pages = Math.max(Math.ceil(total / limit), 1);
+    res.json({ success: true, data: reviews, meta: { page, limit, total, pages } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error', error: error.message });
   }

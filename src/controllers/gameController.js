@@ -2,8 +2,13 @@ const Game = require('../models/Game');
 
 async function getAllGames(req, res) {
   try {
-    const games = await Game.find().sort({ fechaAgregado: -1 });
-    res.json({ success: true, count: games.length, data: games });
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
+    const total = await Game.countDocuments();
+    const games = await Game.find().sort({ fechaAgregado: -1 }).skip(skip).limit(limit);
+    const pages = Math.max(Math.ceil(total / limit), 1);
+    res.json({ success: true, data: games, meta: { page, limit, total, pages } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error', error: error.message });
   }
