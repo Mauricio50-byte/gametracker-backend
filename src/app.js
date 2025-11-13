@@ -1,0 +1,14 @@
+const express = require('express');
+const cors = require('cors');
+const gameRoutes = require('./routes/gameRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.use('/api/games', gameRoutes);
+app.use('/api/reviews', reviewRoutes);
+
+module.exports = app;
