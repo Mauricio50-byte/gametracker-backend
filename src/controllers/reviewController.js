@@ -6,7 +6,12 @@ async function getAllReviews(req, res) {
     const limit = Math.max(parseInt(req.query.limit) || 10, 1);
     const skip = (page - 1) * limit;
     const total = await Review.countDocuments();
-    const reviews = await Review.find().sort({ fechaCreacion: -1 }).skip(skip).limit(limit);
+    const sortParam = String(req.query.sort || 'date_desc');
+    let sort = { fechaCreacion: -1 };
+    if (sortParam === 'date_asc') sort = { fechaCreacion: 1 };
+    if (sortParam === 'rating_desc') sort = { puntuacion: -1, fechaCreacion: -1 };
+    if (sortParam === 'rating_asc') sort = { puntuacion: 1, fechaCreacion: -1 };
+    const reviews = await Review.find().sort(sort).skip(skip).limit(limit);
     const pages = Math.max(Math.ceil(total / limit), 1);
     res.json({ success: true, data: reviews, meta: { page, limit, total, pages } });
   } catch (error) {
