@@ -31,8 +31,13 @@ async function getReviewsByGame(req, res) {
     const limit = Math.max(parseInt(req.query.limit) || 10, 1);
     const skip = (page - 1) * limit;
     const filter = { juegoId };
+    const sortParam = String(req.query.sort || 'date_desc');
+    let sort = { fechaCreacion: -1 };
+    if (sortParam === 'date_asc') sort = { fechaCreacion: 1 };
+    if (sortParam === 'rating_desc') sort = { puntuacion: -1, fechaCreacion: -1 };
+    if (sortParam === 'rating_asc') sort = { puntuacion: 1, fechaCreacion: -1 };
     const total = await Review.countDocuments(filter);
-    const reviews = await Review.find(filter).sort({ fechaCreacion: -1 }).skip(skip).limit(limit);
+    const reviews = await Review.find(filter).sort(sort).skip(skip).limit(limit);
     const pages = Math.max(Math.ceil(total / limit), 1);
     res.json({ success: true, data: reviews, meta: { page, limit, total, pages } });
   } catch (error) {

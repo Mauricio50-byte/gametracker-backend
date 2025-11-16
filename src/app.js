@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const gameRoutes = require('./routes/gameRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use('/api/games', gameRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/stats', statsRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, db_connected: mongoose.connection.readyState === 1 });
