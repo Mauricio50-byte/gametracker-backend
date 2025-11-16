@@ -38,6 +38,8 @@ const gameSchema = new mongoose.Schema({
   completado: { type: Boolean, default: false },
   puntuacion: { type: Number, min: 1, max: 5 },
   horasJugadas: { type: Number, default: 0, min: 0 },
+  aspectosPositivos: { type: [String], default: [] },
+  aspectosNegativos: { type: [String], default: [] },
   fechaAgregado: { type: Date, default: Date.now },
   fechaActualizacion: { type: Date, default: Date.now }
 }, { timestamps: true });
