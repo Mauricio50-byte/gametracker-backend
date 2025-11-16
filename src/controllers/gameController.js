@@ -56,8 +56,14 @@ async function deleteGame(req, res) {
 async function searchGames(req, res) {
   try {
     const q = req.query.query || '';
-    const games = await Game.find({ titulo: { $regex: q, $options: 'i' } });
-    res.json({ success: true, count: games.length, data: games });
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
+    const filter = { titulo: { $regex: q, $options: 'i' } };
+    const total = await Game.countDocuments(filter);
+    const games = await Game.find(filter).sort({ fechaAgregado: -1 }).skip(skip).limit(limit);
+    const pages = Math.max(Math.ceil(total / limit), 1);
+    res.json({ success: true, data: games, meta: { page, limit, total, pages } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error', error: error.message });
   }
@@ -66,11 +72,16 @@ async function searchGames(req, res) {
 async function filterGames(req, res) {
   try {
     const { plataforma, genero } = req.query;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
     const filter = {};
     if (plataforma) filter.plataforma = plataforma;
     if (genero) filter.genero = genero;
-    const games = await Game.find(filter);
-    res.json({ success: true, count: games.length, data: games });
+    const total = await Game.countDocuments(filter);
+    const games = await Game.find(filter).sort({ fechaAgregado: -1 }).skip(skip).limit(limit);
+    const pages = Math.max(Math.ceil(total / limit), 1);
+    res.json({ success: true, data: games, meta: { page, limit, total, pages } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error', error: error.message });
   }
